@@ -1,15 +1,15 @@
 import mysql from 'mysql2';
 
 const connection = mysql.createConnection({
-host: 'localhost',
-user: 'root',
-password: 'mysql',
-database: 'linktree_db'
-});
+  host: 'localhost',
+  user: 'root',
+  password: 'mysql',
+  database: 'linktree_db',
+}).promise(); 
 
-connection.connect(err => {
-if (err) throw err;
-console.log('Conexión a la base de datos MySQL exitosa');
-});
+connection.query('SELECT 1')
+  .then(() => console.log("MySQL database connection successful"))
+  .catch(err => console.error("MySQL connection failed:", err));
 
 export default connection;
+
