@@ -16,8 +16,6 @@ const handleValidationErrors = (req, res, next) => {
 
 router.get('/hello-world', getHelloWorld);
 router.get('/notes', getNotes);
-
-
 router.post('/notes', createNoteValidation, handleValidationErrors, createNote);
 
 export default router;
