@@ -6,7 +6,6 @@ export const getNotes = async (_, res) => {
     const notes = await noteService.findAllNotes();
     res.json(notes);
   } catch (error) {
-    console.error("Error fetching notes:", error);
     console.error("Error creating note:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       error: ReasonPhrases.INTERNAL_SERVER_ERROR,
