@@ -44,16 +44,6 @@ CREATE TABLE link (
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
-
-CREATE TABLE theme (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    description VARCHAR(255),
-    background_color VARCHAR(20),
-    text_color VARCHAR(20)
-);
-
-
 CREATE TABLE visit (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
