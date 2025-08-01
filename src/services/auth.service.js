@@ -1,0 +1,47 @@
+import db from "../configs/db.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+const ROLE_USER = 2;
+
+export const registerUser = async ({ name, email, password, role_id }) => {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await db.query(
+    "INSERT INTO user (name, email, password, role_id) VALUES (?, ?, ?, ?)",
+    [name, email, hashedPassword, role_id || ROLE_USER]
+    );
+};
+
+export const authenticateUser = async ({ email, password, jwtSecret, refreshSecret }) => {
+  const [users] = await db.query("SELECT * FROM user WHERE email = ?", [email]);
+    const user = users[0];
+    if (!user) throw new Error("Invalid credentials");
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error("Invalid credentials");
+
+    const accessToken = jwt.sign(
+    { id: user.id, email: user.email, role: user.role_id },
+    jwtSecret,
+    { expiresIn: "15m" }
+    );
+
+    const refreshToken = jwt.sign({ id: user.id }, refreshSecret, {
+    expiresIn: "7d",
+    });
+
+    return { accessToken, refreshToken };
+};
+
+export const generateNewAccessToken = (refreshToken, jwtSecret, refreshSecret) => {
+    return new Promise((resolve, reject) => {
+    jwt.verify(refreshToken, refreshSecret, (err, user) => {
+        if (err) return reject(err);
+
+        const newAccessToken = jwt.sign({ id: user.id }, jwtSecret, {
+        expiresIn: "15m",
+        });
+        resolve(newAccessToken);
+    });
+    });
+};
