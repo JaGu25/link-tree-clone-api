@@ -1,9 +1,8 @@
 import express from "express";
 import { register, login, refreshToken } from "../controllers/auth.controller.js";
 import { registerValidation, loginValidation } from "../validations/auth.validation.js";
-import { validateJWTSecrets } from "../middlewares/validate-secrets.js";
+import { validateJWTSecrets, verifyToken } from "../middlewares/jwt-validation.js";
 import handleValidationErrors from "../middlewares/handle-validation-errors.js";
-import { verifyToken } from "../middlewares/verify-token.js";
 
 const router = express.Router();
 
