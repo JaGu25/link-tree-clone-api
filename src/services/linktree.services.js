@@ -3,14 +3,21 @@ import db from "../configs/db.js";
 
 export const createProfileService = async (userId, { bio, avatar_url, is_public, links }) => {
   const [existing] = await db.query("SELECT * FROM profile WHERE user_id = ?", [userId]);
-  if (existing.length > 0) {
-    throw new Error("Ya existe un perfil para este usuario");
-  }
 
-  await db.query(
-    "INSERT INTO profile (user_id, bio, avatar_url, is_public) VALUES (?, ?, ?, ?)",
-    [userId, bio, avatar_url, is_public]
-  );
+  const isUpdate = existing.length > 0;
+
+  if (isUpdate) {
+    await db.query(
+      "UPDATE profile SET bio = ?, avatar_url = ?, is_public = ? WHERE user_id = ?",
+      [bio, avatar_url, is_public, userId]
+    );
+    await db.query("DELETE FROM link WHERE user_id = ?", [userId]);
+  } else {
+    await db.query(
+      "INSERT INTO profile (user_id, bio, avatar_url, is_public) VALUES (?, ?, ?, ?)",
+      [userId, bio, avatar_url, is_public]  
+    );
+  }
 
   for (const link of links) {
     await db.query(
@@ -18,11 +25,14 @@ export const createProfileService = async (userId, { bio, avatar_url, is_public,
       [userId, link.title, link.url]
     );
   }
+
+  return isUpdate;  
 };
+
 
 export const getProfileService = async (userId) => {
   const [[profile]] = await db.query("SELECT * FROM profile WHERE user_id = ?", [userId]);
-  if (!profile) throw new Error("Perfil no encontrado");
+  if (!profile) throw new Error("Profile not found");
 
   const [links] = await db.query("SELECT * FROM link WHERE user_id = ?", [userId]);
   return { profile, links };
@@ -37,7 +47,7 @@ export const getPublicProfileService = async (userId) => {
     "SELECT * FROM profile WHERE user_id = ? AND is_public = 1",
     [userId]
   );
-  if (!profile) throw new Error("Perfil público no encontrado");
+  if (!profile) throw new Error("Public profile not found");
 
   const [links] = await db.query("SELECT * FROM link WHERE user_id = ?", [userId]);
   return { profile, links };

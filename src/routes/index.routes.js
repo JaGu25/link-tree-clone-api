@@ -1,9 +1,10 @@
 import express from "express";
 import authRoutes from "./auth.routes.js"; 
+import linktreeRoutes from "./linktree.routes.js";
 
-const app = express();
+const router = express.Router();
 
-app.use(express.json());
-app.use("/auth", authRoutes);
+router.use("/auth", authRoutes);
+router.use("/linktree", linktreeRoutes);
 
-export default app;
+export default router;

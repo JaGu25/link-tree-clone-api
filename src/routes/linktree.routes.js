@@ -13,6 +13,6 @@ const router = express.Router();
 router.post("/", verifyToken, createProfileController);
 router.get("/", verifyToken, getProfileController);
 router.patch("/", verifyToken, updateVisibilityController);
-router.get("/public", getPublicProfileController);
+router.get("/public", getPublicProfileController);  
 
 export default router;
