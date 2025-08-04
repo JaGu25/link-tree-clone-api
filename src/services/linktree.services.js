@@ -52,3 +52,7 @@ export const getPublicProfileService = async (userId) => {
   const [links] = await db.query("SELECT * FROM link WHERE user_id = ?", [userId]);
   return { profile, links };
 };
+
+export const registerClickService = async (link_id) => {
+  await db.query("INSERT INTO click (link_id) VALUES (?)", [link_id]);
+};
