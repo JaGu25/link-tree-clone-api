@@ -56,12 +56,6 @@ export const registerClickController = async (req, res) => {
     try {
     const { link_id } = req.body;
 
-    if (!link_id) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-        message: "link_id is required",
-        });
-    }
-
     await registerClickService(link_id);
 
     return res.status(StatusCodes.CREATED).json({
