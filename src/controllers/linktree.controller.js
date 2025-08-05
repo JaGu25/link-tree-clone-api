@@ -5,6 +5,7 @@ import {
     updateVisibilityService,
     getPublicProfileService
 } from "../services/linktree.services.js";
+import { registerClickService } from "../services/linktree.services.js";
 
 export const createProfileController = async (req, res) => {
     const userId = req.user.id;
@@ -51,5 +52,21 @@ export const getPublicProfileController = async (req, res) => {
     }
 };
 
+export const registerClickController = async (req, res) => {
+    try {
+    const { link_id } = req.body;
+
+    await registerClickService(link_id);
+
+    return res.status(StatusCodes.CREATED).json({
+        message: "Click registered successfully",
+    });
+    } catch (error) {
+    console.error("Error registering click:", error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: "Failed to register click",
+    });
+    }
+};
 
         
