@@ -23,7 +23,7 @@ export const authenticateUser = async ({ email, password, jwtSecret, refreshSecr
     const accessToken = jwt.sign(
     { id: user.id, email: user.email, role: user.role_id },
     jwtSecret,
-    { expiresIn: "15m" }
+    { expiresIn: "12h" }
     );
 
     const refreshToken = jwt.sign({ id: user.id }, refreshSecret, {
@@ -31,7 +31,6 @@ export const authenticateUser = async ({ email, password, jwtSecret, refreshSecr
     });
 
     const userInfo = {
-    id: user.id,
     name: user.name,
     email: user.email,
     };
