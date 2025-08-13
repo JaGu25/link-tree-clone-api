@@ -23,25 +23,47 @@ export const authenticateUser = async ({ email, password, jwtSecret, refreshSecr
     const accessToken = jwt.sign(
     { id: user.id, email: user.email, role: user.role_id },
     jwtSecret,
-    { expiresIn: "15m" }
+    { expiresIn: "12h" }
     );
 
     const refreshToken = jwt.sign({ id: user.id }, refreshSecret, {
     expiresIn: "7d",
     });
 
-    return { accessToken, refreshToken };
+    const userInfo = {
+    name: user.name,
+    email: user.email,
+    };
+
+    return { accessToken, refreshToken, user: userInfo };
 };
 
 export const generateNewAccessToken = (refreshToken, jwtSecret, refreshSecret) => {
-    return new Promise((resolve, reject) => {
-    jwt.verify(refreshToken, refreshSecret, (err, user) => {
+    return new Promise(async (resolve, reject) => {
+    jwt.verify(refreshToken, refreshSecret, async (err, payload) => {
         if (err) return reject(err);
 
-        const newAccessToken = jwt.sign({ id: user.id }, jwtSecret, {
-        expiresIn: "15m",
-        });
-        resolve(newAccessToken);
+        try {
+        const [users] = await db.query("SELECT id, name, email, role_id FROM user WHERE id = ?", [payload.id]);
+        const user = users[0];
+        if (!user) return reject(new Error("Usuario no encontrado"));
+
+        const newAccessToken = jwt.sign(
+            { id: user.id, email: user.email, role: user.role_id },
+            jwtSecret,
+            { expiresIn: "15m" }
+        );
+
+        const userInfo = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        };
+
+        resolve({ accessToken: newAccessToken, user: userInfo });
+        } catch (dbError) {
+        reject(dbError);
+        }
     });
     });
 };

@@ -17,14 +17,14 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-    const { accessToken, refreshToken } = await authenticateUser({
+    const { accessToken, refreshToken, user } = await authenticateUser({
         email,
         password,
         jwtSecret: process.env.JWT_SECRET,
         refreshSecret: process.env.REFRESH_SECRET,
     });
 
-    res.json({ accessToken, refreshToken });
+    res.json({ accessToken, refreshToken, user });
     } catch (error) {
     console.error("Login error:", error);
     res.status(StatusCodes.UNAUTHORIZED).json({ error: error.message });
@@ -39,13 +39,13 @@ export const refreshToken = async (req, res) => {
     }
 
     try {
-    const newAccessToken = await generateNewAccessToken(
+    const { accessToken, user } = await generateNewAccessToken(
         token,
         process.env.JWT_SECRET,
         process.env.REFRESH_SECRET
     );
 
-    res.json({ accessToken: newAccessToken });
+    res.json({ accessToken, user });
     } catch (error) {
     res.sendStatus(StatusCodes.FORBIDDEN);
     }
