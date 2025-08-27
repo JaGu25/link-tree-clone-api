@@ -1,21 +1,24 @@
 import db from "../configs/db.js";
 
 
-export const createProfileService = async (userId, { bio, avatar_url, is_public, links }) => {
+export const createProfileService = async (
+  userId,
+  { bio, avatar_url, is_public, links, main_color }
+) => {
   const [existing] = await db.query("SELECT * FROM profile WHERE user_id = ?", [userId]);
 
   const isUpdate = existing.length > 0;
 
   if (isUpdate) {
     await db.query(
-      "UPDATE profile SET bio = ?, avatar_url = ?, is_public = ? WHERE user_id = ?",
-      [bio, avatar_url, is_public, userId]
+      "UPDATE profile SET bio = ?, avatar_url = ?, is_public = ?, main_color = ? WHERE user_id = ?",
+      [bio, avatar_url, is_public, main_color, userId]
     );
     await db.query("DELETE FROM link WHERE user_id = ?", [userId]);
   } else {
     await db.query(
-      "INSERT INTO profile (user_id, bio, avatar_url, is_public) VALUES (?, ?, ?, ?)",
-      [userId, bio, avatar_url, is_public]  
+      "INSERT INTO profile (user_id, bio, avatar_url, is_public, main_color) VALUES (?, ?, ?, ?, ?)",
+      [userId, bio, avatar_url, is_public, main_color]
     );
   }
 
@@ -26,9 +29,8 @@ export const createProfileService = async (userId, { bio, avatar_url, is_public,
     );
   }
 
-  return isUpdate;  
+  return isUpdate;
 };
-
 
 export const getProfileService = async (userId) => {
   const [[profile]] = await db.query("SELECT * FROM profile WHERE user_id = ?", [userId]);
@@ -44,9 +46,13 @@ export const updateVisibilityService = async (userId, isPublic) => {
 
 export const getPublicProfileService = async (userId) => {
   const [[profile]] = await db.query(
-    "SELECT * FROM profile WHERE user_id = ? AND is_public = 1",
+    `SELECT p.*, u.name
+      FROM profile p
+      JOIN user u ON p.user_id = u.id
+      WHERE p.user_id = ? AND p.is_public = 1`,
     [userId]
   );
+
   if (!profile) throw new Error("Public profile not found");
 
   const [links] = await db.query("SELECT * FROM link WHERE user_id = ?", [userId]);
