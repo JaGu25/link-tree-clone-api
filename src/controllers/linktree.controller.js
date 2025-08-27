@@ -11,26 +11,33 @@ export const createProfileController = async (req, res) => {
     const userId = req.user.id;
 
     try {
-        if (req.file) {
-            req.body.avatar_url = `/uploads/${req.file.filename}`;
-        }
-        
-        if (req.body.links && typeof req.body.links === "string") {
-            req.body.links = JSON.parse(req.body.links);
-        }
+    if (req.file) {
+        req.body.avatar_url = `/uploads/${req.file.filename}`;
+    }
 
-        const wasUpdated = await createProfileService(userId, req.body);
+    if (req.body.links && typeof req.body.links === "string") {
+        req.body.links = JSON.parse(req.body.links);
+    }
 
-        const message = wasUpdated
-            ? "Profile updated successfully"
-            : "Profile created successfully";
+    const { bio, avatar_url, is_public, links, main_color } = req.body;
 
-        res.status(StatusCodes.CREATED).json({ message });
+    const wasUpdated = await createProfileService(userId, {
+        bio,
+        avatar_url,
+        is_public,
+        links,
+        main_color,
+    });
+
+    const message = wasUpdated
+        ? "Profile updated successfully"
+        : "Profile created successfully";
+
+    res.status(StatusCodes.CREATED).json({ message });
     } catch (err) {
-        res.status(StatusCodes.BAD_REQUEST).json({ error: err.message });
+    res.status(StatusCodes.BAD_REQUEST).json({ error: err.message });
     }
 };
-
 
 export const getProfileController = async (req, res) => {
     const userId = req.user.id;

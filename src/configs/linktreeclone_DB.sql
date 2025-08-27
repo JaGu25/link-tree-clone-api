@@ -31,6 +31,8 @@ CREATE TABLE profile (
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
+ALTER TABLE profile
+ADD COLUMN main_color VARCHAR(20) DEFAULT '#4CAF50';
 
 CREATE TABLE link (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -62,32 +64,8 @@ CREATE TABLE click (
 );
 
 
-
 INSERT INTO role (name) VALUES ('admin'), ('user');
 
-
-INSERT INTO user (name, email, password, role_id)
-VALUES ('Matías Albites', 'matias@correo.com', '1234', 2);
-
-
-INSERT INTO profile (user_id, bio, avatar_url, is_public)
-VALUES (
-    1,
-    '¡Hola! Soy Matías y este es mi LinkTree personal.',
-    'https://i.imgur.com/avatar.png',
-    TRUE
-);
-
-INSERT INTO link (user_id, title, url, is_active)
-VALUES 
-(1, 'GitHub', 'https://github.com/matias', TRUE),
-(1, 'YouTube', 'https://youtube.com/@matiasalbites', TRUE),
-(1, 'Instagram', 'https://instagram.com/matiasalbites', TRUE);
-
-INSERT INTO click (link_id) VALUES (1), (2);
-
-
-INSERT INTO visit (user_id) VALUES (1), (1);
 
 SELECT * FROM role;
 SELECT * FROM user;
@@ -95,5 +73,4 @@ SELECT * FROM profile;
 SELECT * FROM link;
 SELECT * FROM click;
 SELECT * FROM visit;
-
 
