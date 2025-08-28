@@ -31,6 +31,8 @@ CREATE TABLE profile (
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
+ALTER TABLE profile ADD COLUMN visits_counter INT DEFAULT 0;
+
 ALTER TABLE profile
 ADD COLUMN main_color VARCHAR(20) DEFAULT '#4CAF50';
 
@@ -62,6 +64,11 @@ CREATE TABLE click (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (link_id) REFERENCES link(id)
 );
+
+ALTER TABLE click DROP FOREIGN KEY click_ibfk_1;
+ALTER TABLE click
+ADD CONSTRAINT click_ibfk_1
+FOREIGN KEY (link_id) REFERENCES link(id) ON DELETE CASCADE;
 
 
 INSERT INTO role (name) VALUES ('admin'), ('user');
