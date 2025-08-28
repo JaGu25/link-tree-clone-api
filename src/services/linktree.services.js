@@ -1,12 +1,12 @@
 import db from "../configs/db.js";
 
+
 export const createProfileService = async (
   userId,
   { bio, avatar_url, is_public, links, main_color }
 ) => {
-  const [existing] = await db.query("SELECT * FROM profile WHERE user_id = ?", [
-    userId,
-  ]);
+  const [existing] = await db.query("SELECT * FROM profile WHERE user_id = ?", [userId]);
+
   const isUpdate = existing.length > 0;
 
   if (isUpdate) {
@@ -14,6 +14,7 @@ export const createProfileService = async (
       "UPDATE profile SET bio = ?, avatar_url = ?, is_public = ?, main_color = ? WHERE user_id = ?",
       [bio, avatar_url, is_public, main_color, userId]
     );
+    await db.query("DELETE FROM link WHERE user_id = ?", [userId]);
   } else {
     await db.query(
       "INSERT INTO profile (user_id, bio, avatar_url, is_public, main_color) VALUES (?, ?, ?, ?, ?)",
@@ -22,34 +23,25 @@ export const createProfileService = async (
   }
 
   for (const link of links) {
-    await db.query("INSERT INTO link (user_id, title, url) VALUES (?, ?, ?)", [
-      userId,
-      link.title,
-      link.url,
-    ]);
+    await db.query(
+      "INSERT INTO link (user_id, title, url) VALUES (?, ?, ?)",
+      [userId, link.title, link.url]
+    );
   }
 
   return isUpdate;
 };
 
 export const getProfileService = async (userId) => {
-  const [[profile]] = await db.query(
-    "SELECT * FROM profile WHERE user_id = ?",
-    [userId]
-  );
+  const [[profile]] = await db.query("SELECT * FROM profile WHERE user_id = ?", [userId]);
   if (!profile) throw new Error("Profile not found");
 
-  const [links] = await db.query("SELECT * FROM link WHERE user_id = ?", [
-    userId,
-  ]);
+  const [links] = await db.query("SELECT * FROM link WHERE user_id = ?", [userId]);
   return { profile, links };
 };
 
 export const updateVisibilityService = async (userId, isPublic) => {
-  await db.query("UPDATE profile SET is_public = ? WHERE user_id = ?", [
-    isPublic,
-    userId,
-  ]);
+  await db.query("UPDATE profile SET is_public = ? WHERE user_id = ?", [isPublic, userId]);
 };
 
 export const getPublicProfileService = async (userId) => {
@@ -77,4 +69,14 @@ export const getPublicProfileService = async (userId) => {
 
 export const registerClickService = async (link_id) => {
   await db.query("INSERT INTO click (link_id) VALUES (?)", [link_id]);
+  await db.query("UPDATE link SET counter = counter + 1 WHERE id = ?", [link_id]);
 };
+
+export const registerVisitService = async (user_id) => {
+  await db.query("INSERT INTO visit (user_id) VALUES (?)", [user_id]);
+  await db.query(
+    "UPDATE profile SET visits_counter = visits_counter + 1 WHERE user_id = ?",
+    [user_id]
+  );
+};
+

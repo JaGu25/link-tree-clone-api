@@ -6,7 +6,8 @@ import {
     getProfileController,
     updateVisibilityController,
     getPublicProfileController,
-    registerClickController
+    registerClickController,
+    registerVisitController,
 } from "../controllers/linktree.controller.js";
 import { validateClick } from "../validations/click.validation.js";
 import handleValidationErrors from "../middlewares/handle-validation-errors.js";
@@ -25,5 +26,6 @@ router.get("/", verifyToken, getProfileController);
 router.patch("/", verifyToken, updateVisibilityController);
 router.get("/public", getPublicProfileController);
 router.post("/click", validateClick, handleValidationErrors, registerClickController);
+router.post("/visit", registerVisitController);
 
 export default router;
