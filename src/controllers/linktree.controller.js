@@ -1,9 +1,11 @@
+import db from "../configs/db.js";
 import { StatusCodes } from "http-status-codes";
 import {
     createProfileService,
     getProfileService,
     updateVisibilityService,
-    getPublicProfileService
+    getPublicProfileService,
+    registerVisitService,
 } from "../services/linktree.services.js";
 import { registerClickService } from "../services/linktree.services.js";
 
@@ -87,4 +89,24 @@ export const registerClickController = async (req, res) => {
     }
 };
 
-        
+export const registerVisitController = async (req, res) => {
+    try {
+    const { user_id } = req.body;
+
+    if (!user_id) {
+        return res.status(400).json({ success: false, error: "user_id is required" });
+    }
+
+    await db.query("INSERT INTO visit (user_id) VALUES (?)", [user_id]);
+
+    await db.query(
+        "UPDATE profile SET visits_counter = visits_counter + 1 WHERE user_id = ?",
+        [user_id]
+    );
+
+    res.status(201).json({ success: true, message: "Visit registered" });
+    } catch (error) {
+    console.error("Error registering visit:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+    }
+};
