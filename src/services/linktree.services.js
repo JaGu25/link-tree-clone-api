@@ -47,15 +47,23 @@ export const updateVisibilityService = async (userId, isPublic) => {
 export const getPublicProfileService = async (userId) => {
   const [[profile]] = await db.query(
     `SELECT p.*, u.name
-      FROM profile p
-      JOIN user u ON p.user_id = u.id
-      WHERE p.user_id = ? AND p.is_public = 1`,
+        FROM profile p
+        JOIN user u ON p.user_id = u.id
+        WHERE p.user_id = ? AND p.is_public = 1`,
     [userId]
   );
 
   if (!profile) throw new Error("Public profile not found");
+  const [links] = await db.query(
+    `SELECT l.id, l.user_id, l.title, l.url, l.is_active, l.created_at, l.updated_at,
+      COUNT(c.id) AS counter
+      FROM link l
+      LEFT JOIN click c ON l.id = c.link_id
+      WHERE l.user_id = ?
+      GROUP BY l.id`,
+    [userId]
+  );
 
-  const [links] = await db.query("SELECT * FROM link WHERE user_id = ?", [userId]);
   return { profile, links };
 };
 
