@@ -7,6 +7,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import routes from "./src/routes/index.routes.js";
+import dashboardRoutes from "./src/routes/dashboard.routes.js";
 
 const app = express();  
 const PORT = 3001;
@@ -19,6 +20,8 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/api", routes);  
+
+app.use("/api/dashboard", dashboardRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
