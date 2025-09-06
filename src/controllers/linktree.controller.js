@@ -35,11 +35,15 @@ export const createProfileController = async (req, res) => {
         ? "Profile updated successfully"
         : "Profile created successfully";
 
-    res.status(StatusCodes.CREATED).json({ message });
+    res.status(StatusCodes.CREATED).json({
+        message,
+        profileId: userId,
+    });
     } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({ error: err.message });
     }
 };
+
 
 export const getProfileController = async (req, res) => {
     const userId = req.user.id;
